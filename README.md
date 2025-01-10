@@ -44,7 +44,7 @@ func main() {
 
 ```
 
-This can ofcourse be configured trough env variables. One important thing to note here is that as of now the protocol needs to be supplied on the SERVERS flag, so for example we need to specify HTTP for our two servers
+One important thing to note here is that as of now the protocol needs to be supplied on the SERVERS flag, so for example we need to specify HTTP for our two servers
 
 
 ```go
