@@ -7,12 +7,17 @@ type LoadBalancer interface {
 	GetServer() (string, error)
 }
 
-func GetLoadBalancer(algorithm string, serverlist []string) (LoadBalancer, error) {
+const (
+	AlgorithmRoundRobin    = "roundrobin"
+	AlgorithmLowestLatency = "lowestlatency"
+)
+
+func GetLoadBalancer(algorithm string, servers []string) (LoadBalancer, error) {
 	switch algorithm {
-	case "roundrobin":
-		return &RoundRobin{currentIndex: 0, servers: serverlist}, nil
-	case "lowestlatency":
-		return &LowestLatency{servers: serverlist}, nil
+	case AlgorithmRoundRobin:
+		return &RoundRobin{currentIndex: 0, servers: servers}, nil
+	case AlgorithmLowestLatency:
+		return &LowestLatency{servers: servers}, nil
 	default:
 		return nil, fmt.Errorf("unknown load balancing algorithm: %s", algorithm)
 	}

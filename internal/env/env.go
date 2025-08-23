@@ -3,7 +3,23 @@ package env
 import (
 	"os"
 	"strconv"
+	"strings"
 )
+
+func GetStrings(key string, defaultValue []string) []string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		return defaultValue
+	}
+	parts := strings.Split(value, ",")
+	result := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if trimmed := strings.TrimSpace(p); trimmed != "" {
+			result = append(result, p)
+		}
+	}
+	return result
+}
 
 func GetString(key, defaultValue string) string {
 	value, exists := os.LookupEnv(key)

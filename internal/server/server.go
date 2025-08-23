@@ -5,7 +5,6 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"strings"
 
 	"github.com/zeidlitz/rudder/loadbalancer"
 )
@@ -27,10 +26,8 @@ func (s *Server) loadBalanceHandler() http.HandlerFunc {
 	}
 }
 
-func (s *Server) Configure(algorithm string, serverlist string) error {
-	servers := strings.Split(serverlist, ", ")
+func (s *Server) Configure(algorithm string, servers []string) error {
 	lb, err := loadbalancer.GetLoadBalancer(algorithm, servers)
-
 	if err != nil {
 		slog.Error("Error when configuring server", "error", err.Error())
 		return err
@@ -71,7 +68,7 @@ func relay(w http.ResponseWriter, clientRequest *http.Request, server string) {
 		return
 	}
 
-	var data map[string]interface{}
+	var data map[string]any
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		slog.Error("Error unmarshalling response body JSON: ", "err", err)
