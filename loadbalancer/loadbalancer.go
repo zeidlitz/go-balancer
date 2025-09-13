@@ -1,6 +1,8 @@
 package loadbalancer
 
-import "fmt"
+import (
+	"errors"
+)
 
 type LoadBalancer interface {
 	Configure(servers []string) error
@@ -12,6 +14,10 @@ const (
 	AlgorithmLowestLatency = "lowestlatency"
 )
 
+var (
+	ErrUnknownAlgorithm = errors.New("unknown algorithm")
+)
+
 func GetLoadBalancer(algorithm string, servers []string) (LoadBalancer, error) {
 	switch algorithm {
 	case AlgorithmRoundRobin:
@@ -19,6 +25,6 @@ func GetLoadBalancer(algorithm string, servers []string) (LoadBalancer, error) {
 	case AlgorithmLowestLatency:
 		return &LowestLatency{servers: servers}, nil
 	default:
-		return nil, fmt.Errorf("unknown load balancing algorithm: %s", algorithm)
+		return nil, ErrUnknownAlgorithm
 	}
 }

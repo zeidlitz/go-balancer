@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/zeidlitz/rudder/loadbalancer"
+	"github.com/zeidlitz/rudder/internal/config"
 )
 
 type Server struct {
@@ -26,10 +27,10 @@ func (s *Server) loadBalanceHandler() http.HandlerFunc {
 	}
 }
 
-func (s *Server) Configure(algorithm string, servers []string) error {
-	lb, err := loadbalancer.GetLoadBalancer(algorithm, servers)
+func (s *Server) Configure(conf *config.Config) error {
+	lb, err := loadbalancer.GetLoadBalancer(conf.Algorithm, conf.Servers)
 	if err != nil {
-		slog.Error("Error when configuring server", "error", err.Error())
+		slog.Error("Unable to configure server", "error", err)
 		return err
 	}
 
@@ -51,7 +52,6 @@ func relay(w http.ResponseWriter, clientRequest *http.Request, server string) {
 		}
 	}
 
-	slog.Info("Sending ", "request", serverRequest)
 	client := &http.Client{}
 	resp, err := client.Do(serverRequest)
 
@@ -68,7 +68,7 @@ func relay(w http.ResponseWriter, clientRequest *http.Request, server string) {
 		return
 	}
 
-	var data map[string]any
+	var data any
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		slog.Error("Error unmarshalling response body JSON: ", "err", err)

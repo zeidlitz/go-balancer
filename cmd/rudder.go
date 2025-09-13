@@ -3,25 +3,29 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"os"
 
+	"github.com/zeidlitz/rudder/internal/config"
 	"github.com/zeidlitz/rudder/internal/env"
 	"github.com/zeidlitz/rudder/internal/server"
 )
 
 func main() {
-	servers := env.GetStrings("SERVERS", []string{"http://localhost", "http://hostlocal"})
-	hostname := env.GetString("HOSTNAME", "localhost")
-	algorithm := env.GetString("ALGORITHM", "roundrobin")
-	port := env.GetString("PORT", "8080")
+	conf := &config.Config{}
+	conf.Servers = env.GetStrings("SERVERS", []string{"http://192.168.1.103:8080", "http://192.168.1.103:8081"})
+	conf.Hostname = env.GetString("HOSTNAME", "localhost")
+	conf.Algorithm = env.GetString("ALGORITHM", "roundrobin")
+	conf.Port = env.GetString("PORT", "8080")
+
 
 	server := server.Server{}
-	host := fmt.Sprint(hostname + ":" + port)
-	err := server.Configure(algorithm, servers)
+	conf.Host = fmt.Sprint(conf.Hostname + ":" + conf.Port)
+	err := server.Configure(conf)
 	if err != nil {
-		slog.Error("Error during configuration")
-		// TODO: What do we do here?
+		os.Exit(1)
 	}
+
 	slog.Info("Rudder is running!")
-	slog.Info("configuration", "servers", servers, "hostname", hostname, "port", port, "algorithm", algorithm)
-	server.Start(host)
+	slog.Info("Configuration:", "servers", conf.Servers, "hostname", conf.Hostname, "port", conf.Port, "algorithm", conf.Algorithm)
+	server.Start(conf.Host)
 }
